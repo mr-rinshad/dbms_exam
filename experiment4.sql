@@ -1,12 +1,14 @@
 -- 1. Find all employees who locate in the location with the id 1700
-SELECT * FROM employees e, departments d
-WHERE e.department_id=d.department_id
-AND d.location_id=1700;
+SELECT e.*
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE d.location_id = 1700;
 
 -- 2. Find all employees who do not locate at the location 1700
-SELECT * FROM employees e, departments d
-WHERE e.department_id=d.department_id
-AND d.location_id<>1700;
+SELECT e.*
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE d.location_id <> 1700;
 
 -- 3. Finds the employees who have the highest salary
 SELECT * FROM employees
@@ -17,10 +19,10 @@ SELECT * FROM employees
 WHERE salary>(SELECT AVG(salary) FROM employees);
 
 -- 5. Finds all departments having at least one employee with salary greater than 10000
-SELECT DISTINCT d.department_id,d.department_name
-FROM departments d, employees e
-WHERE d.department_id=e.department_id
-AND e.salary>10000;
+SELECT DISTINCT d.department_id, d.department_name
+FROM departments d
+JOIN employees e ON d.department_id = e.department_id
+WHERE e.salary > 10000;
 
 -- 6. Finds all departments that do not have any employee with salary greater than 10000
 SELECT department_id,department_name
@@ -28,13 +30,17 @@ FROM departments
 WHERE department_id NOT IN
 (SELECT department_id FROM employees WHERE salary>10000);
 
--- 7. Finds all employees whose salaries are greater than the lowest salary of every department
-SELECT * FROM employees
-WHERE salary>(SELECT MIN(salary) FROM employees);
+-- 7. Finds all employees whose salaries are greater than the lowest salary
+SELECT e.*
+FROM employees e
+JOIN (SELECT MIN(salary) AS min_sal FROM employees) m
+ON e.salary > m.min_sal;
 
--- 8. Finds all employees whose salaries are greater than or equal to the highest salary of every department
-SELECT * FROM employees
-WHERE salary>=(SELECT MAX(salary) FROM employees);
+-- 8. Finds all employees whose salaries are greater than or equal to the highest salary
+SELECT e.*
+FROM employees e
+JOIN (SELECT MAX(salary) AS max_sal FROM employees) m
+ON e.salary >= m.max_sal;
 
 -- 9. Calculate the average of average salary of departments
 SELECT AVG(avg_sal)
