@@ -45,9 +45,11 @@ ON e.salary >= m.max_sal;
 -- 9. Calculate the average of average salary of departments
 SELECT AVG(avg_sal)
 FROM
-(SELECT AVG(salary) avg_sal
-FROM employees
-GROUP BY department_id) a;
+(
+    SELECT AVG(salary) AS avg_sal
+    FROM employees
+    GROUP BY department_id
+) dept_avg;
 
 -- 10. Finds salaries of employees, average salary and difference
 SELECT employee_id,salary,
@@ -68,54 +70,62 @@ WHERE employee_id NOT IN
 (SELECT employee_id FROM dependents);
 
 -- 13. Display first name, last name, department name of employees of department 1,2,3
-SELECT first_name,last_name,department_name
-FROM employees e,departments d
-WHERE e.department_id=d.department_id
-AND d.department_id IN(1,2,3);
+SELECT e.first_name, e.last_name, d.department_name
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE d.department_id IN (1,2,3);
 
 -- 14. Display first name, last name, job title and department name of employees in dept 1,2,3 with salary >10000
-SELECT first_name,last_name,job_title,department_name
-FROM employees e,jobs j,departments d
-WHERE e.job_id=j.job_id
-AND e.department_id=d.department_id
-AND d.department_id IN(1,2,3)
-AND salary>10000;
+SELECT e.first_name, e.last_name, j.job_title, d.department_name
+FROM employees e
+JOIN jobs j ON e.job_id = j.job_id
+JOIN departments d ON e.department_id = d.department_id
+WHERE d.department_id IN (1,2,3)
+AND e.salary > 10000;
 
 -- 15. Display department name, street address, postal code, country name and region name
-SELECT department_name,street_address,postal_code,country_name,region_name
-FROM departments d,locations l,countries c,regions r
-WHERE d.location_id=l.location_id
-AND l.country_id=c.country_id
-AND c.region_id=r.region_id;
+SELECT d.department_name, l.street_address, l.postal_code,
+c.country_name, r.region_name
+FROM departments d
+JOIN locations l ON d.location_id = l.location_id
+JOIN countries c ON l.country_id = c.country_id
+JOIN regions r ON c.region_id = r.region_id;
 
 -- 16. Find employees who have or do not have a department
-SELECT first_name,last_name,d.department_id,department_name
-FROM employees e LEFT JOIN departments d
-ON e.department_id=d.department_id;
+SELECT e.first_name, e.last_name,
+d.department_id, d.department_name
+FROM employees e
+LEFT JOIN departments d
+ON e.department_id = d.department_id;
 
 -- 17. Find employees whose first name contains letter Z
-SELECT first_name,last_name,department_name,city,state_province
-FROM employees e,departments d,locations l
-WHERE e.department_id=d.department_id
-AND d.location_id=l.location_id
-AND first_name LIKE '%Z%';
+SELECT e.first_name, e.last_name,
+d.department_name, l.city, l.state_province
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE e.first_name LIKE '%Z%';
 
 -- 18. Find all departments including those without employees
-SELECT first_name,last_name,d.department_id,department_name
-FROM departments d LEFT JOIN employees e
-ON d.department_id=e.department_id;
+SELECT e.first_name, e.last_name,
+d.department_id, d.department_name
+FROM departments d
+LEFT JOIN employees e
+ON d.department_id = e.department_id;
 
 -- 19. Find employees and their managers
-SELECT e.first_name,m.first_name
-FROM employees e LEFT JOIN employees m
-ON e.manager_id=m.employee_id;
+SELECT e.first_name AS Employee,
+m.first_name AS Manager
+FROM employees e
+LEFT JOIN employees m
+ON e.manager_id = m.employee_id;
 
 -- 20. Find employees who work in same department as Taylor
-SELECT first_name,last_name,department_id
-FROM employees
-WHERE department_id=
-(SELECT department_id FROM employees
-WHERE last_name='Taylor');
+SELECT e1.first_name, e1.last_name, e1.department_id
+FROM employees e1
+JOIN employees e2
+ON e1.department_id = e2.department_id
+WHERE e2.last_name = 'Taylor';
 
 -- 21. Calculate difference between max salary of job and employee salary
 SELECT job_title,first_name,
@@ -130,40 +140,5 @@ FROM departments d LEFT JOIN employees e
 ON d.department_id=e.department_id
 GROUP BY department_name;
 
--- 23. Create a view for employees belongs to department located in Delhi
-CREATE VIEW delhi_view AS
-SELECT first_name,employee_id,phone_number,
-job_title,department_name
-FROM employees e,jobs j,departments d,locations l
-WHERE e.job_id=j.job_id
-AND e.department_id=d.department_id
-AND d.location_id=l.location_id
-AND city='Delhi';
 
-SELECT * FROM delhi_view;
-
--- 24. Use view to obtain names whose job title is Manager and department is Finance
-SELECT first_name
-FROM delhi_view
-WHERE job_title='Manager'
-AND department_name='Finance';
-
--- 25. Update phone number of employee Smith using view
-UPDATE delhi_view
-SET phone_number='9999999999'
-WHERE first_name='Smith';
-
--- 26. Display details of employee who have no dependents
-SELECT * FROM employees
-WHERE employee_id NOT IN
-(SELECT employee_id FROM dependents);
-
--- 27. Display details of employee whose manager id is 101 or 201
-SELECT * FROM employees WHERE manager_id=101
-UNION
-SELECT * FROM employees WHERE manager_id=201;
-
--- 28. Display details of employees who have at least one dependent
-SELECT * FROM employees
-WHERE employee_id IN
 (SELECT employee_id FROM dependents);
