@@ -141,4 +141,3 @@ ON d.department_id=e.department_id
 GROUP BY department_name;
 
 
-(SELECT employee_id FROM dependents);
