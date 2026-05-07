@@ -140,4 +140,47 @@ FROM departments d LEFT JOIN employees e
 ON d.department_id=e.department_id
 GROUP BY department_name;
 
+---23. Create a view for employees belongs to department located in Delhi
+CREATE VIEW delhi_view AS
+SELECT e.first_name, e.employee_id, e.phone_number,
+j.job_title, d.department_name
+FROM employees e
+JOIN jobs j ON e.job_id = j.job_id
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE l.city = 'Delhi';
+
+SELECT * FROM delhi_view;
+
+-- 24. Use view to obtain names whose job title is Manager and department is Finance
+SELECT first_name
+FROM delhi_view
+WHERE job_title = 'Manager'
+AND department_name = 'Finance';
+
+-- 25. Update phone number of employee Smith using view
+UPDATE delhi_view
+SET phone_number = '9999999999'
+WHERE first_name = 'Smith';
+
+-- 26. Display details of employee who have no dependents
+SELECT e.*
+FROM employees e
+LEFT JOIN dependents d
+ON e.employee_id = d.employee_id
+WHERE d.employee_id IS NULL;
+
+-- 27. Display details of employee whose manager id is 101 or 201
+SELECT * FROM employees
+WHERE manager_id = 101
+UNION
+SELECT * FROM employees
+WHERE manager_id = 201;
+
+-- 28. Display details of employees who have at least one dependent
+SELECT DISTINCT e.*
+FROM employees e
+JOIN dependents d
+ON e.employee_id = d.employee_id;
+
 
